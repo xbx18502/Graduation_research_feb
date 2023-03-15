@@ -1,9 +1,9 @@
-# calculate kiwifruit 's each parts' mua, mus, with equal scale enlarge
+# %%calculate kiwifruit 's each parts' mua, mus, with equal scale enlarge
 import pandas as pd
 from pandas import DataFrame,Series
 import numpy as np
 from io import StringIO
-import matplotlib.pyplot as plt
+from matplotlib import pyplot as plt
 # import tensorflow as tf
 import math
 # from scipy.optimize import fsolve
@@ -69,7 +69,7 @@ class process_hyperspec(object):
     def return_array(self):
         return self.data_array
     
-class data_dict:
+class data_dict():
     dict0 = {}
     for i in range(1,100):
         dict0[i] = 'D:\\files2\\Nagoya\\python\\kiwi_ToF_simulation\\feb\\20230210\\常温\\Sample'+str(i)+'.txt'
@@ -178,40 +178,211 @@ class analyze(object):
 ##################################################
 os.chdir(os.path.dirname(os.path.abspath(__file__)))
 ###################################################
-ana = analyze()
-H = []
-Y = []
-TIME = []
-R = []
-AMOUNT_EXP = len(data_dict.dictn)
+class read_all():
+    def main(self):
+        ana = analyze()
+        H = []
+        Y = []
+        TIME = []
+        R = []
+        AMOUNT_EXP = len(data_dict.dictn)
+        AMOUNT_EXP = 1
 
-def iterate_AMOUNT_EXP(i):  #定义获取每个 H,Y,TIME,R 的方法
-    radius = ana.read_radius()
-    data_480multi9,time_index,N,radius0 = ana.read_everyday(data_dict.dictn[i],radius)
-    h,y = ana.generate_h_y(data_480multi9,N)
+        def iterate_AMOUNT_EXP(i):  #定义获取每个 H,Y,TIME,R 的方法
+            radius = ana.read_radius()
+            data_480multi9,time_index,N,radius0 = ana.read_everyday(data_dict.dictn[i],radius)
+            h,y = ana.generate_h_y(data_480multi9,N)
 
-    return h,y,time_index,radius0
-H_Y_TIME_R = list(iterate_AMOUNT_EXP(i) for i in range(AMOUNT_EXP))
-# for i in range(AMOUNT_EXP):
-#     radius = ana.read_radius()
-#     data_480multi9,time_index,N,radius0 = ana.read_everyday(dictn[i],radius)
-#     h,y = ana.generate_h_y(data_480multi9,N)
-#     H.append(h)
-#     Y.append(y)
-#     TIME.append(time_index)
-#     R.append(radius0)
-H = [H_Y_TIME_R[i][0] for i in range(len(H_Y_TIME_R))]
-Y = [H_Y_TIME_R[i][1] for i in range(len(H_Y_TIME_R))]
-TIME = [H_Y_TIME_R[i][2] for i in range(len(H_Y_TIME_R))]
-R = [H_Y_TIME_R[i][3] for i in range(len(H_Y_TIME_R))]
+            return h,y,time_index,radius0
+        H_Y_TIME_R = list(iterate_AMOUNT_EXP(i) for i in range(AMOUNT_EXP))
+        # for i in range(AMOUNT_EXP):
+        #     radius = ana.read_radius()
+        #     data_480multi9,time_index,N,radius0 = ana.read_everyday(dictn[i],radius)
+        #     h,y = ana.generate_h_y(data_480multi9,N)
+        #     H.append(h)
+        #     Y.append(y)
+        #     TIME.append(time_index)
+        #     R.append(radius0)
+        H = [H_Y_TIME_R[i][0] for i in range(len(H_Y_TIME_R))]
+        Y = [H_Y_TIME_R[i][1] for i in range(len(H_Y_TIME_R))]
+        TIME = [H_Y_TIME_R[i][2] for i in range(len(H_Y_TIME_R))]
+        R = [H_Y_TIME_R[i][3] for i in range(len(H_Y_TIME_R))]
 
+        self.H = H
+        self.Y = Y
+        self.TIME = TIME
+        self.R = R
+        self.AMOUNT_EXP = AMOUNT_EXP
+        return H,Y,TIME,R
+# %%
+read_ = read_all()
+H,Y,TIME,R = read_.main()
+# %%
 ##########################################
-fig = plt.figure(figsize = (8,8))
-for i in range(AMOUNT_EXP):
-    plt.subplot(3,4,i+1)
-    for j in range(Y[i].shape[0]):
-        plt.plot(TIME[0][i]*1e-9,Y[i][j,0:480])
-# plt.title.set_text(dict0[i][9:-4])
-fig.tight_layout(pad=1.1)
+# fig = plt.figure(figsize = (8,8))
+# for i in range(read_.AMOUNT_EXP):
+#     plt.subplot(3,4,i+1)
+#     for j in range(read_.Y[i].shape[0]):
+#         plt.plot(read_.TIME[0][i]*1e-9,read_.Y[i][j,0:480])
+# # plt.title.set_text(dict0[i][9:-4])
+# fig.tight_layout(pad=1.1)
 
-plt.show()
+# plt.show()
+##########################################
+# fig = plt.figure(figsize = (4,4))
+
+# plt.plot(read_.TIME[0][50]*1e-9,read_.H[0])
+# # plt.title.set_text(dict0[i][9:-4])
+# fig.tight_layout(pad=1.1)
+
+
+# plt.show()
+
+class calculate_miu_s1(object):
+    
+    def __init__(self, h, y, time_index,d):
+        self.h = h
+        self.y = y
+        self.time = time_index
+        self.d = d
+        return None
+    
+    def transmittance(self, d, t, c, g, miu_a, miu_s):
+        miu_s_prime = (1-g)*miu_s
+        Z0 = 1/(miu_s_prime)
+        D = 1/(3*(miu_a + miu_s_prime))
+        h1 = math.pow(4*math.pi*D*c, -0.5)
+        h2 = math.pow(t, -1.5)*math.exp(-miu_a*c*t)
+        h3 = (d-Z0)*math.exp(-(math.pow(d-Z0, 2))/(4*D*c*t))
+        h4 = (d+Z0)*math.exp(-(math.pow(d+Z0, 2))/(4*D*c*t))
+        h5 = (3*d-Z0)*math.exp(-(math.pow(3*d-Z0, 2))/(4*D*c*t))
+        h6 = (3*d+Z0)*math.exp(-(math.pow(3*d+Z0, 2))/(4*D*c*t))
+    #     return d,Z0,D,c,t
+        return h1*h2*(h3-h4+h5-h6)
+    
+    
+    def error_cal(self, x):
+        miu_a = x[0]
+        #miu_a = 69
+        miu_s = x[1]
+         
+        # k = 0.1
+        # miu_a = 0.01e2
+        g = 0.85
+        # d = 0.38e-3
+        d = self.d
+        c = 3e8/1.3314
+        T = int(480)
+#         time = np.array(range(1,T, 1))
+#         time = time*1e-8*0.010345058455114822
+        time = self.time*1e-9
+        # miu_s = miu_s*1e4
+        intensity1 = np.zeros((T, ), dtype = float)
+        # for i in range(time.shape[0] ):
+
+        #     intensity1[i] = calculate_miu_s1.transmittance(self, d, time[i], c, g, miu_a, miu_s)
+        intensity1 = np.array([calculate_miu_s1.transmittance(self, d, time[i], c, g, miu_a, miu_s) 
+                               for i in range(time.shape[0])])  # 隐式循环
+
+        y2 = np.convolve(intensity1, self.h)
+        self.intensity = intensity1
+        self.y_convolved = y2
+        y2 = y2/max(abs(y2))
+        y3 = self.y/max(abs(self.y))
+        
+        return np.sum(abs(y2 - y3))
+#         return time
+
+    def get_convolved_signal(self):
+        return self.y_convolved
+        
+    def get_x(self):
+        return self.intensity
+
+class calculate_miu_s_k(object):
+    
+    def __init__(self, h, y, time_index, radius,k):
+        self.h = h
+        self.y = y
+        self.time = time_index
+        self.radius = radius
+        self.k = k
+        return None
+    
+    def transmittance(self, d, t, c, g, miu_a, miu_s):
+        miu_s_prime = (1-g)*miu_s
+        Z0 = 1/(miu_s_prime)
+        D = 1/(3*(miu_a + miu_s_prime))
+        h1 = math.pow(4*math.pi*D*c, -0.5)
+        h2 = math.pow(t, -1.5)*math.exp(-miu_a*c*t)
+        h3 = (d-Z0)*math.exp(-(math.pow(d-Z0, 2))/(4*D*c*t))
+        h4 = (d+Z0)*math.exp(-(math.pow(d+Z0, 2))/(4*D*c*t))
+        h5 = (3*d-Z0)*math.exp(-(math.pow(3*d-Z0, 2))/(4*D*c*t))
+        h6 = (3*d+Z0)*math.exp(-(math.pow(3*d+Z0, 2))/(4*D*c*t))
+    #     return d,Z0,D,c,t
+        return h1*h2*(h3-h4+h5-h6)
+    
+    
+    def error_cal(self, x):
+        miu_s = x[0]
+        miu_a = x[1]
+        k = self.k
+        # k     = x[2]  
+        # k = 0.1
+        # miu_a = 0.01e2
+        g = 0.85
+        d = self.radius
+        # t = 300e-12
+        c = 3e8/1.3314
+        T = int(480)
+#         time = np.array(range(1,T, 1))
+#         time = time*1e-8*0.010345058455114822
+        time = self.time*1e-9
+        # miu_s = miu_s*1e4
+        intensity1 = np.zeros((T, ), dtype = float)
+        intensity1 = np.array([self.transmittance( d, time[i], c, g, miu_a, miu_s) 
+                               for i in range(time.shape[0])])  # 隐式循环
+        
+        y2 = np.convolve(intensity1, self.h)
+        self.intensity = intensity1
+        self.y_convolved = y2
+        # y2 = y2/max(y2)
+        y2 = y2*k*1e-9
+        return np.sum(abs(y2 - self.y))
+#         return time
+
+    def optimize(self):
+        bnds = ((0, None), (0, None))
+        opti = minimize(self.error_cal, x0 = [0.1e2,100e2], method  = 'Nelder-Mead', bounds = bnds,options={"xtol" : 1e-20, "disp":True})
+        return opti
+
+    def get_convolved_signal(self):
+        return self.y_convolved
+        
+    def get_x(self):
+        return self.intensity
+    
+
+class call_cal(object):
+    def __init__(self):
+        return
+    
+
+    def call_(self,H,Y,TIME,R,k,AMOUNT_EXP):
+        opti = [[]]*len(Y)
+        convolved_signal = [[]]*len(Y)
+        for i in range(AMOUNT_EXP):
+            for j in range(len(Y[i])): # len(Y[i])
+                cal_ = calculate_miu_s_k(H[i],Y[i][j],TIME[i][j],R[i][j],k=k)
+                opti[i].append(cal_.optimize())
+                convolved_signal[i].append(cal_.get_convolved_signal())
+            
+        return opti,convolved_signal
+# %%    
+cal = call_cal()
+opti,convolved_signal = cal.call_(H,Y,TIME,R,1e-9,1)
+
+print('')
+# %%
+opti[0][0].x
+# %%
