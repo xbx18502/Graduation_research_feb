@@ -1,0 +1,34 @@
+####################################################################
+20230402
+第一步：对原始数据。PCA，高斯，找趋势；
+对每一天的数据都除以day0的数据；
+ToF光强度数据/猕猴桃直径，进行补正；
+如果有波动，看看是否day1,day3,day5，隔一天有趋势；
+
+第二步：查一下别人的论文，固定mua的范围，再算mus
+
+目前第一步完成了，第二步通过调参，结果还可以，但是没有说服力，需要再查一下论文，关于猕猴桃mua/mus 846nm
+Elicit.org
+Scholarcy.com
+Scite.ai
+
+kiwi μa,μs,g:
+[1]Analysis of laser light propagation in kiwifruit using backscattering imaging and Monte Carlo simulation: 
+	785nm, μa = 0.9 cm−1, μs = 40 cm−1, g = 0.8+-20%,
+	The uncertainty of these optical properties of kiwifruit appears in the literature and values of  (Torricelli, 2009) or  
+    (Qin and Lu, 2008) may also occur for similar non-reduced scattering coefficient with g ≈ 0.7 and g ≈ 0.8, respectively.
+
+[2]Internal quality assessment of kiwifruit by bulk optical properties and online transmission spectra:
+    mean spectra from 500-1050nm, mua: 0.05-0.1 , mus’: 2.5-6, g = 0.7
+    at 846nm, mua = 0.002~0.01, mus' = 0.25~0.55, g  = 0.7, unit:/mm
+              mua = 2~10, mus = 833.3~1833.3, g = 0.7, unit:/m
+    flesh
+[3]Relationship of the bulk optical properties in 950–1650 nm wavelength range with internal quality and microstructure of kiwifruit during maturation:
+    Average ma spectra of kiwifruits over 950-1650 nm and during maturation at 44, 58, 72, 86, 100 and 114 days after full bloom 
+    mua≈2.5, mus≈0.8~1.4e3, unit:/m, wavelength: 950nm
+[4]
+
+第二步：
+20230402
+mua 初值6.5，范围(6.0,8.7)，结果还可以，把第三天去掉的话
+######################################################################
